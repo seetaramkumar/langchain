@@ -15,11 +15,13 @@ os.environ["LANGCHAIN_TRACING_V2"] = "true"
 ## Prompt Template
 
 prompt = ChatPromptTemplate.from_messages(
+    [
     ("system", "Act as an Python and ML developer and help to respond to user queries with proper examples"),
     ("user", "Question: {question}")
+    ]
 )
 
-st.title("LangChain Demo...")
+st.title("CodeAI")
 input_text = st.text_input("Ask me anything on Python or ML")
 
 llm = Ollama(model="codellama")
@@ -28,4 +30,3 @@ chain = prompt|llm|output_parser
 
 if input_text:
     st.write(chain.invoke({"question":input_text}))
-
