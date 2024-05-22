@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request
-from server.models.codellama import load_codellama_model, generate_codellama_response
-from server.config import MODELS
+from models.codellama import load_codellama_model, generate_codellama_response
+from config import MODELS
 
 router = APIRouter()
 model, tokenizer = load_codellama_model(MODELS["CodeLlama"])

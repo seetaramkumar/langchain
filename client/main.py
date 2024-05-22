@@ -1,4 +1,4 @@
-from client.interface import create_interface
+from interface import create_interface
 
 MODELS = {
     "CodeLlama": "CodeLlama",

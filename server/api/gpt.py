@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request
-from server.models.gpt import load_gpt_model, generate_gpt_response
-from server.config import MODELS
+from models.gpt import load_gpt_model, generate_gpt_response
+from config import MODELS
 
 router = APIRouter()
 model, tokenizer = load_gpt_model(MODELS["GPT"])

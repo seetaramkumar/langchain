@@ -1,6 +1,6 @@
 import streamlit as st
 import requests
-from client.config import API_URL
+from config import API_URL
 
 def create_interface(models):
     st.title("Code Assistant Bot")
@@ -16,10 +16,10 @@ def create_interface(models):
     if st.button("Send"):
         if user_input:
             history = "\n".join([f"{turn['role'].capitalize()}: {turn['text']}" for turn in st.session_state.conversation])
-            response = requests.post(
-                f"{API_URL}/{model_name.lower()}",
-                json={"history": history, "user_input": user_input}
-            ).json()["response"]
+            print("API_URL: ", API_URL)
+            print("Model-Name: ", model_name.lower())
+            response = requests.post(f"{API_URL}/{model_name.lower()}",json={"history": history, "user_input": user_input}).json()["response"]
+            print(response)
 
             st.session_state.conversation.append({"role": "user", "text": user_input})
             st.session_state.conversation.append({"role": "bot", "text": response})

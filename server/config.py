@@ -1,4 +1,4 @@
 MODELS = {
-    "CodeLlama": "codellama/CodeLlama-7b",
-    "GPT": "gpt2"  # Use appropriate GPT model name
+    "CodeLlama": "microsoft/codebert-base",
+    "GPT": "openai-community/gpt2"  # Use appropriate GPT model name
 }
