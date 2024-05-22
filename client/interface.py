@@ -18,6 +18,8 @@ def create_interface(models):
             history = "\n".join([f"{turn['role'].capitalize()}: {turn['text']}" for turn in st.session_state.conversation])
             url = f"{API_URL}/{model_name.lower()}"
             print("Url:", url)
+            print("user_input:", user_input)
+            print("history: ", history)
             response = requests.post(url=url,data={"history": history, "user_input": user_input}).json()["response"]
             print(response)
 
