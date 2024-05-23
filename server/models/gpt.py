@@ -1,12 +1,24 @@
-from transformers import AutoModel, AutoTokenizer
+import logging
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 def load_gpt_model(model_name):
-    model = AutoModel.from_pretrained(model_name)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    return model, tokenizer
+    try:
+        model = AutoModelForCausalLM.from_pretrained(model_name)
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        return model, tokenizer
+    except Exception as e:
+        logging.error(f"Error loading GPT model: {e}")
+        raise
 
 def generate_gpt_response(history, user_input, model, tokenizer):
-    inputs = tokenizer(history + user_input, return_tensors="pt")
-    outputs = model(**inputs)
-    response = tokenizer.decode(outputs.logits.argmax(-1).squeeze(), skip_special_tokens=True)
-    return response
+    try:
+        input_text = f"{history}\nUser: {user_input}\nBot:"
+        inputs = tokenizer(input_text, return_tensors="pt")
+        outputs = model.generate(**inputs, max_length=500)
+        response_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        # Process the response to extract relevant part
+        response = response_text.split('Bot:')[-1].strip()
+        return response
+    except Exception as e:
+        logging.error(f"Error generating response with GPT: {e}")
+        return "Sorry, something went wrong."

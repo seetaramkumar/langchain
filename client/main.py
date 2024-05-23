@@ -1,37 +1,44 @@
 import streamlit as st
-from interface import get_bot_response
+import requests
 
-# Set the page configuration
-st.set_page_config(page_title="Code Assistant Bot", layout="wide")
+# Function to send a POST request to the selected model's endpoint
+def get_bot_response(model_name, history, user_input):
+    api_url = f"http://localhost:8000/api/{model_name.lower()}"
+    try:
+        st.info(f"Sending request to {api_url}")
+        response = requests.post(api_url, json={"history": history, "user_input": user_input})
+        response.raise_for_status()
+        data = response.json()
+        st.info(f"Received response: {data}")
+        if "response" in data:
+            return data["response"]
+        else:
+            return data.get("error", "Sorry, something went wrong.")
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error communicating with the API: {e}")
+        return "Sorry, something went wrong."
 
-# Define a container for chat history
-chat_container = st.container()
+# Streamlit UI
+st.title("Code Assistant Bot")
 
-# Define a container for the user input at the bottom of the screen
-input_container = st.container()
+# User selects the model
+model_name = st.selectbox("Select the model:", ["CodeLlama", "GPT"])
 
-# Add the chat history to the chat container
-with chat_container:
-    if 'history' not in st.session_state:
-        st.session_state.history = ""
-    st.write(st.session_state.history)
+# Chat history
+if "history" not in st.session_state:
+    st.session_state.history = ""
 
-# Model selection dropdown
-with input_container:
-    model_name = st.selectbox("Choose Model", ["CodeLlama", "GPT"], index=0)
-    user_input = st.text_input("You:", key="user_input")
+# Display chat history
+st.text_area("Conversation:", value=st.session_state.history, height=300, key="history_area")
 
-    # Send the user input and history to the model and get the response
-    if st.button("Send"):
-        if user_input:
-            st.session_state.history += f"\nUser: {user_input}"
-            try:
-                bot_response = get_bot_response(model_name, st.session_state.history, user_input)
-                st.session_state.history += f"\nBot: {bot_response}"
-                st.experimental_rerun()
-            except Exception as e:
-                st.error(f"Error: {e}")
+# User input
+user_input = st.text_input("You:", key="user_input")
 
-# Display the chat history again to reflect the updates
-with chat_container:
-    st.write(st.session_state.history)
+# Handle user input
+if st.button("Send"):
+    if user_input:
+        # Update history
+        st.session_state.history += f"\nUser: {user_input}"
+        bot_response = get_bot_response(model_name, st.session_state.history, user_input)
+        st.session_state.history += f"\nBot: {bot_response}"
+        st.experimental_rerun()
