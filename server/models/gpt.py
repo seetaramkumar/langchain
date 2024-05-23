@@ -1,13 +1,12 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModel, AutoTokenizer
 
 def load_gpt_model(model_name):
+    model = AutoModel.from_pretrained(model_name)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name)
     return model, tokenizer
 
 def generate_gpt_response(history, user_input, model, tokenizer):
-    input_text = f"{history}\nUser: {user_input}\nBot:"
-    inputs = tokenizer(input_text, return_tensors="pt")
-    outputs = model.generate(**inputs, max_length=512)
-    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    return response.split("Bot:")[-1].strip()
+    inputs = tokenizer(history + user_input, return_tensors="pt")
+    outputs = model(**inputs)
+    response = tokenizer.decode(outputs.logits.argmax(-1).squeeze(), skip_special_tokens=True)
+    return response

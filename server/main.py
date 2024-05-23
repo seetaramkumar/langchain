@@ -1,26 +1,22 @@
-import uvicorn
-from fastapi import FastAPI, Request
-from api import router
+from flask import Flask, request, jsonify
+from flask_restful import Api
+from api import codellama_bp, gpt_bp
 import logging
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI()
+app = Flask(__name__)
+api = Api(app)
 
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    logger.info(f"Request: {request.method} {request.url}")
-    response = await call_next(request)
-    logger.info(f"Response: {response.status_code}")
-    return response
+# Register Blueprints
+app.register_blueprint(codellama_bp, url_prefix='/codellama')
+app.register_blueprint(gpt_bp, url_prefix='/gpt')
 
-@app.get("/")
-async def root():
-    return {"message": "Welcome to the Code Assistant Bot API!"}
-
-app.include_router(router)
+@app.route('/')
+def root():
+    return jsonify({"message": "Welcome to the Code Assistant Bot API!"})
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    app.run(host='0.0.0.0', port=8000, debug=True)
